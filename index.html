@@ -4,15 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OptiLocal - Compresor de Imágenes Privado</title>
+    <title>OptiLocal - Herramientas de Optimización Local</title>
     <meta name="description"
-        content="Comprime imágenes AVIF, WebP y JPEG directamente en tu navegador. Sin servidores, privacidad total.">
+        content="Conjunto de herramientas locales para optimizar tus archivos sin comprometer tu privacidad.">
 
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <style>
@@ -20,15 +16,26 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
         }
 
-        @keyframes fadeIn {
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(30px);
             }
 
             to {
@@ -37,220 +44,276 @@
             }
         }
 
-        .animate-fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .tool-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px) scale(1.02);
         }
     </style>
 </head>
 
 <body class="bg-slate-900 text-slate-200 antialiased">
 
-    <nav
-        class="w-full py-6 px-6 flex justify-between items-center max-w-6xl mx-auto border-b border-slate-800/50 mb-8 md:mb-0">
+    <!-- Navigation -->
+    <nav class="w-full py-6 px-6 flex justify-between items-center max-w-7xl mx-auto border-b border-slate-800/50">
         <div class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
             <span class="text-blue-500">⚡</span> OptiLocal
         </div>
         <div class="hidden md:flex gap-8 text-sm font-medium text-slate-400">
-            <a href="#features" class="hover:text-white transition duration-300">Beneficios</a>
-            <a href="#faq" class="hover:text-white transition duration-300">Preguntas</a>
+            <a href="#tools" class="hover:text-white transition duration-300">Herramientas</a>
+            <a href="#about" class="hover:text-white transition duration-300">Acerca de</a>
         </div>
     </nav>
 
-    <header class="relative pt-10 pb-24 px-4 overflow-hidden">
+    <!-- Hero Section -->
+    <header class="relative pt-20 pb-32 px-4 overflow-hidden">
+        <!-- Background gradient -->
         <div
-            class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-5xl bg-blue-600/20 blur-[120px] -z-10 rounded-full pointer-events-none">
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-5xl bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20 blur-[150px] -z-10 rounded-full pointer-events-none">
         </div>
 
-        <div class="max-w-4xl mx-auto text-center mb-12 relative z-10">
-            <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-                Tus imágenes, optimizadas <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">sin salir de tu
-                    ordenador.</span>
+        <div class="max-w-5xl mx-auto text-center relative z-10 fade-in-up">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-sm font-semibold mb-8">
+                <span>🔒</span>
+                <span>100% Privado y Local</span>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
+                Optimiza tus archivos,<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                    sin salir de tu navegador
+                </span>
             </h1>
-            <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                Olvídate de subir fotos a servidores extraños. Comprime, convierte y descarga al instante usando la
-                potencia de tu propio navegador. <strong>100% Privado.</strong>
+
+            <p class="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed mb-12">
+                Herramientas profesionales que funcionan completamente en tu dispositivo.
+                <strong class="text-slate-300">Sin servidores, sin esperas, sin riesgos.</strong>
             </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="#tools"
+                    class="group px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-bold hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 flex items-center gap-2 hover:scale-105">
+                    Ver Herramientas
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                </a>
+                <a href="#about"
+                    class="px-8 py-4 bg-slate-800/50 border border-slate-700 text-white rounded-xl font-bold hover:bg-slate-800 hover:border-slate-600 transition-all duration-300">
+                    Saber más
+                </a>
+            </div>
         </div>
 
-        <div
-            class="max-w-xl mx-auto glass-effect rounded-2xl shadow-2xl border border-slate-700/50 p-2 md:p-6 text-slate-800 relative z-20">
+        <!-- Floating elements decoration -->
+        <div class="absolute top-1/4 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-xl float-animation"></div>
+        <div class="absolute bottom-1/4 right-10 w-32 h-32 bg-purple-500/10 rounded-full blur-xl float-animation"
+            style="animation-delay: 2s;"></div>
+    </header>
 
-            <div id="dropZone"
-                class="border-2 border-dashed border-slate-300 rounded-xl p-10 text-center cursor-pointer hover:bg-blue-50 hover:border-blue-400 transition-all group select-none bg-white relative overflow-hidden">
-                <input type="file" id="fileInput" class="hidden" accept="image/*" multiple>
-
-                <div
-                    class="mb-4 text-slate-300 group-hover:text-blue-500 transition-colors transform group-hover:scale-110 duration-300">
-                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                        </path>
-                    </svg>
-                </div>
-
-                <h3 class="text-lg font-bold text-slate-700">Sube tus imágenes aquí</h3>
-                <p class="text-slate-500 text-sm mt-1 mb-5">Arrastra archivos o haz clic para buscar</p>
-
-                <div
-                    class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-[10px] font-bold tracking-wide uppercase text-slate-500 border border-slate-200 shadow-sm">
-                    <span>Acepta:</span>
-                    <span class="text-slate-700">JPG</span>
-                    <span class="text-slate-300">•</span>
-                    <span class="text-slate-700">PNG</span>
-                    <span class="text-slate-300">•</span>
-                    <span class="text-slate-700">WebP</span>
-                    <span class="text-slate-300">•</span>
-                    <span class="text-purple-600">AVIF</span>
-                </div>
-
-                <p id="fileCount"
-                    class="text-xs text-blue-600 font-bold mt-4 hidden bg-blue-50 py-1 px-3 rounded-full border border-blue-100 mx-auto w-max animate-fade-in">
-                    0 archivos seleccionados
+    <!-- Tools Section -->
+    <section id="tools" class="py-24 px-4 bg-slate-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-4">
+                    Herramientas Disponibles
+                </h2>
+                <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+                    Cada herramienta funciona completamente en tu navegador. Elige la que necesites.
                 </p>
             </div>
 
-            <div id="controls" class="hidden flex-col gap-6 mt-6 px-2 animate-fade-in">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">1. Formato de
-                        Salida</label>
-                    <div class="relative">
-                        <select id="formatSelect"
-                            class="w-full border border-slate-300 rounded-lg p-3 bg-white text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all appearance-none font-medium cursor-pointer shadow-sm hover:border-blue-400">
-                            <option value="image/avif">AVIF (Compresión Extrema - Nuevo)</option>
-                            <option value="image/webp" selected>WebP (Recomendado para Web)</option>
-                            <option value="image/jpeg">JPEG (Fotografías)</option>
-                            <option value="image/png">PNG (Sin Pérdida)</option>
-                        </select>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Image Converter Tool -->
+                <a href="converter.html" class="tool-card group block">
+                    <div
+                        class="h-full p-8 rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-800/40 border border-slate-700/50 hover:border-blue-500/50 backdrop-blur-sm relative overflow-hidden">
+                        <!-- Hover gradient effect -->
                         <div
-                            class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
+                            class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-500">
+                        </div>
+
+                        <div class="relative z-10">
+                            <!-- Icon -->
+                            <div
+                                class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg shadow-blue-500/20">
+                                📸
+                            </div>
+
+                            <!-- Content -->
+                            <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
+                                Conversor de Imágenes
+                            </h3>
+                            <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                                Comprime y convierte imágenes a AVIF, WebP, JPEG o PNG con control total sobre la
+                                calidad.
+                            </p>
+
+                            <!-- Features -->
+                            <ul class="space-y-2 mb-6">
+                                <li class="flex items-center gap-2 text-slate-400 text-sm">
+                                    <span class="text-green-500">✓</span>
+                                    Múltiples formatos
+                                </li>
+                                <li class="flex items-center gap-2 text-slate-400 text-sm">
+                                    <span class="text-green-500">✓</span>
+                                    Procesamiento en lotes
+                                </li>
+                                <li class="flex items-center gap-2 text-slate-400 text-sm">
+                                    <span class="text-green-500">✓</span>
+                                    100% privado
+                                </li>
+                            </ul>
+
+                            <!-- CTA -->
+                            <div
+                                class="inline-flex items-center gap-2 text-blue-400 font-semibold text-sm group-hover:gap-3 transition-all">
+                                Abrir herramienta
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Placeholder for future tools -->
+                <div class="tool-card">
+                    <div
+                        class="h-full p-8 rounded-2xl bg-slate-800/40 border border-slate-700/50 border-dashed relative overflow-hidden">
+                        <div class="relative z-10 opacity-50">
+                            <div
+                                class="w-16 h-16 bg-slate-700/30 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                                🔧
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-500 mb-3">
+                                Próximamente
+                            </h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                Más herramientas en desarrollo. Estamos trabajando en nuevas funcionalidades para ti.
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <div id="sliderContainer" class="transition-opacity duration-300">
-                    <label class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2 ml-1">
-                        2. Nivel de Compresión <span id="qualityValue"
-                            class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 min-w-[3rem] text-center">80%</span>
-                    </label>
-                    <input type="range" id="qualityRange" min="0.1" max="1" step="0.1" value="0.8"
-                        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-800 hover:accent-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">
-                </div>
-
-                <div id="formatInfo"
-                    class="text-sm p-4 rounded-lg border border-blue-100 bg-blue-50 text-blue-800 flex items-start gap-3 shadow-sm">
-                    <span class="text-xl shrink-0">💡</span>
-                    <p id="infoText" class="leading-snug pt-0.5">...</p>
-                </div>
-
-
-                <button id="processBtn"
-                    class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-black hover:scale-[1.01] hover:shadow-xl transition-all shadow-lg flex justify-center items-center gap-2 text-lg active:scale-95">
-                    <span>⚡</span> Procesar Imágenes
-                </button>
-            </div>
-
-            <div id="results" class="hidden mt-6 pt-6 border-t border-slate-200 px-2 animate-fade-in">
-                <div id="progressContainer"
-                    class="hidden w-full bg-gray-100 rounded-full h-3 mb-5 overflow-hidden border border-gray-200">
-                    <div id="progressBar"
-                        class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                        style="width: 0%"></div>
-                </div>
-
-                <div
-                    class="flex justify-between items-center mb-5 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
-                    <div>
-                        <span id="resultLabel"
-                            class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">Resultado
-                            Final</span>
-                        <div id="finalSize" class="text-2xl font-bold text-slate-800 tracking-tight">...</div>
-                    </div>
-                    <div id="savingsTag"
-                        class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gray-400 uppercase tracking-wide shadow-sm transform transition-transform">
-                        Calculando...
+                <div class="tool-card">
+                    <div
+                        class="h-full p-8 rounded-2xl bg-slate-800/40 border border-slate-700/50 border-dashed relative overflow-hidden">
+                        <div class="relative z-10 opacity-50">
+                            <div
+                                class="w-16 h-16 bg-slate-700/30 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                                🎨
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-500 mb-3">
+                                Próximamente
+                            </h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                Más herramientas en desarrollo. Estamos trabajando en nuevas funcionalidades para ti.
+                            </p>
+                        </div>
                     </div>
                 </div>
-
-                <button id="downloadBtn"
-                    class="block w-full text-center bg-emerald-500 text-white py-4 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-lg hover:shadow-emerald-500/30 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none active:scale-95">
-                    📥 Descargar Archivos
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <section id="features" class="py-24 bg-slate-900 border-t border-slate-800 relative">
-        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10">
-            <div
-                class="p-8 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800/80 transition duration-300 group">
-                <div
-                    class="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
-                    🔒</div>
-                <h3 class="text-xl font-bold text-white mb-3">Privacidad Garantizada</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Tus fotos nunca salen de tu dispositivo. Todo el
-                    proceso ocurre mediante JavaScript localmente.</p>
-            </div>
-            <div
-                class="p-8 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/50 hover:bg-slate-800/80 transition duration-300 group">
-                <div
-                    class="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
-                    🚀</div>
-                <h3 class="text-xl font-bold text-white mb-3">Velocidad Extrema</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Sin esperas de subida o bajada. La conversión es
-                    instantánea, incluso sin conexión a internet.</p>
-            </div>
-            <div
-                class="p-8 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-purple-500/50 hover:bg-slate-800/80 transition duration-300 group">
-                <div
-                    class="w-14 h-14 bg-purple-500/10 rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
-                    📦</div>
-                <h3 class="text-xl font-bold text-white mb-3">Modo Lotes (Batch)</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Sube 50 fotos a la vez. El sistema detectará el
-                    volumen y te entregará un único archivo ZIP ordenado.</p>
             </div>
         </div>
     </section>
 
-    <section id="faq" class="py-24 max-w-3xl mx-auto px-6">
-        <h2 class="text-3xl font-bold text-center text-white mb-12">Preguntas Frecuentes</h2>
-        <div class="space-y-4">
-            <details
-                class="group bg-slate-800/50 rounded-xl p-5 border border-slate-700 cursor-pointer hover:border-slate-600 transition-colors">
-                <summary class="font-bold text-slate-200 flex justify-between items-center text-lg select-none">
-                    ¿Por qué mi imagen PNG pesa más?
-                    <span
-                        class="text-blue-500 group-open:rotate-180 transition-transform duration-300 text-2xl">▼</span>
-                </summary>
-                <div class="mt-4 text-slate-400 text-sm leading-relaxed border-t border-slate-700/50 pt-4">
-                    El formato PNG es "sin pérdida". Los navegadores priorizan velocidad sobre compresión compleja. Para
-                    reducir peso drásticamente, usa <strong>WebP</strong> o <strong>AVIF</strong>.
+    <!-- About Section -->
+    <section id="about" class="py-24 px-4 bg-slate-900 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-4">
+                    ¿Por qué OptiLocal?
+                </h2>
+                <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+                    La privacidad y el control de tus datos es nuestra prioridad número uno.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-10">
+                <div
+                    class="p-8 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800/80 transition duration-300 group">
+                    <div
+                        class="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
+                        🔒
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Privacidad Total</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Tus archivos nunca salen de tu dispositivo. Todo el procesamiento ocurre localmente en tu
+                        navegador mediante JavaScript.
+                    </p>
                 </div>
-            </details>
-            <details
-                class="group bg-slate-800/50 rounded-xl p-5 border border-slate-700 cursor-pointer hover:border-slate-600 transition-colors">
-                <summary class="font-bold text-slate-200 flex justify-between items-center text-lg select-none">
-                    ¿Es gratis usar esta herramienta?
-                    <span
-                        class="text-blue-500 group-open:rotate-180 transition-transform duration-300 text-2xl">▼</span>
-                </summary>
-                <div class="mt-4 text-slate-400 text-sm leading-relaxed border-t border-slate-700/50 pt-4">
-                    Sí, 100% gratis y seguro. No hay costos de servidor porque todo corre en tu navegador.
+
+                <div
+                    class="p-8 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/50 hover:bg-slate-800/80 transition duration-300 group">
+                    <div
+                        class="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
+                        🚀
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Rapidez Extrema</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Sin esperas de subida o descarga. El procesamiento es instantáneo y funciona incluso sin
+                        conexión a internet.
+                    </p>
                 </div>
-            </details>
+
+                <div
+                    class="p-8 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-purple-500/50 hover:bg-slate-800/80 transition duration-300 group">
+                    <div
+                        class="w-14 h-14 bg-purple-500/10 rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
+                        💎
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Gratis y Sin Límites</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        100% gratuito y sin restricciones. No hay costos de servidor porque todo corre en tu navegador.
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 
+    <!-- CTA Section -->
+    <section class="py-24 px-4 bg-slate-900">
+        <div class="max-w-4xl mx-auto text-center">
+            <div
+                class="p-12 rounded-3xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-slate-700/50 backdrop-blur-sm relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5"></div>
+
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">
+                        ¿Listo para empezar?
+                    </h2>
+                    <p class="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
+                        Selecciona una herramienta y comienza a optimizar tus archivos de forma segura y privada.
+                    </p>
+                    <a href="#tools"
+                        class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-bold hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105">
+                        Explorar Herramientas
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer class="py-12 text-center text-slate-500 text-sm border-t border-slate-800 bg-slate-900">
-        <p class="mb-2">&copy; 2023 OptiLocal. La herramienta de compresión ética.</p>
-        <p class="text-xs text-slate-600">Creado con ❤️, HTML5 y JavaScript.</p>
+        <p class="mb-2">&copy; 2023 OptiLocal. Herramientas éticas de optimización.</p>
+        <p class="text-xs text-slate-600">Creado con ❤️, HTML5 y JavaScript puro.</p>
     </footer>
 
-    <script src="script.js"></script>
 </body>
 
 </html>
