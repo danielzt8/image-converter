@@ -4,11 +4,11 @@ const fileInput = document.getElementById('fileInput');
 const fileCountDisplay = document.getElementById('fileCount');
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 // Controles
+// Controles
 const controls = document.getElementById('controls');
 const formatSelect = document.getElementById('formatSelect');
-const qualityRange = document.getElementById('qualityRange');
-const qualityValue = document.getElementById('qualityValue');
-const sliderContainer = document.getElementById('sliderContainer');
+const compressionButtons = document.querySelectorAll('.compression-btn');
+const compressionContainer = document.getElementById('compressionOptions');
 const formatInfo = document.getElementById('formatInfo');
 const infoText = document.getElementById('infoText');
 
@@ -26,6 +26,7 @@ const resultLabel = document.getElementById('resultLabel');
 let selectedFiles = [];
 let outputBlob = null;
 let outputFilename = "";
+let currentQuality = 0.8; // Default value
 
 // --- Utilidad: Formatear Bytes ---
 function formatBytes(bytes) {
@@ -43,25 +44,25 @@ const messages = {
             : "AVIF (Nuevo): La mejor compresión actual. Menor peso que WebP y gran calidad.",
         colorClass: isSafari ? "bg-amber-50 border-amber-200 text-amber-800" : "bg-purple-50 border-purple-100 text-purple-800",
         icon: isSafari ? "⚠️" : "💎",
-        disableSlider: false
+        disableCompression: false
     },
     'image/webp': {
         text: "WebP: Estándar moderno. Mantiene transparencia y ahorra mucho peso.",
         colorClass: "bg-green-50 border-green-100 text-green-800",
         icon: "✨",
-        disableSlider: false
+        disableCompression: false
     },
     'image/jpeg': {
         text: "JPEG: Clásico para fotos. El fondo transparente se volverá BLANCO.",
         colorClass: "bg-blue-50 border-blue-100 text-blue-800",
         icon: "📸",
-        disableSlider: false
+        disableCompression: false
     },
     'image/png': {
-        text: "PNG: Formato 'sin pérdida'. El selector de calidad NO afectará el peso.",
+        text: "PNG: Formato 'sin pérdida'. La opción de nivel de compresión no afectará la calidad visual.",
         colorClass: "bg-orange-50 border-orange-100 text-orange-800",
         icon: "⚠️",
-        disableSlider: true
+        disableCompression: true
     }
 };
 
@@ -77,30 +78,39 @@ function updateFormatInfo() {
     // Colores
     formatInfo.className = `text-sm p-4 rounded-lg border flex items-start gap-3 transition-colors duration-300 shadow-sm ${config.colorClass}`;
 
-    // Habilitar/Deshabilitar Slider
-    if (config.disableSlider) {
-        sliderContainer.classList.add('opacity-40', 'pointer-events-none');
-        qualityValue.textContent = "Máxima";
+    // Habilitar/Deshabilitar Opciones de Compresión
+    if (config.disableCompression) {
+        compressionContainer.classList.add('opacity-40', 'pointer-events-none');
     } else {
-        sliderContainer.classList.remove('opacity-40', 'pointer-events-none');
-        qualityValue.textContent = Math.round(qualityRange.value * 100) + "%";
+        compressionContainer.classList.remove('opacity-40', 'pointer-events-none');
     }
 }
 
 // Listeners de cambios en UI
 formatSelect.addEventListener('change', updateFormatInfo);
-qualityRange.addEventListener('input', (e) => qualityValue.textContent = Math.round(e.target.value * 100) + "%");
+
+// Compression Buttons Logic
+compressionButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Remove active class from all
+        compressionButtons.forEach(b => b.classList.remove('active'));
+        // Add active class to clicked
+        btn.classList.add('active');
+        // Update state
+        currentQuality = parseFloat(btn.dataset.quality);
+    });
+});
 
 // --- Lógica Drag & Drop y Carga ---
 dropZone.addEventListener('click', () => fileInput.click());
 
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
-    dropZone.classList.add('bg-blue-50', 'border-blue-400');
+    dropZone.classList.add('bg-slate-800', 'border-blue-500');
 });
 
 ['dragleave', 'dragend', 'drop'].forEach(evt => dropZone.addEventListener(evt, () => {
-    dropZone.classList.remove('bg-blue-50', 'border-blue-400');
+    dropZone.classList.remove('bg-slate-800', 'border-blue-500');
 }));
 
 dropZone.addEventListener('drop', (e) => {
@@ -135,7 +145,7 @@ function handleFiles(files) {
     // Ocultar resultados previos si los hubo
     results.classList.add('hidden');
 
-    // Inicializar estado del slider
+    // Inicializar estado
     updateFormatInfo();
 }
 
@@ -157,7 +167,7 @@ processBtn.addEventListener('click', async () => {
 
     // Obtener configuración
     const format = formatSelect.value;
-    const quality = parseFloat(qualityRange.value);
+    const quality = currentQuality;
     const ext = format.split('/')[1];
 
     // === CAMINO A: SOLO 1 IMAGEN ===
@@ -188,21 +198,36 @@ processBtn.addEventListener('click', async () => {
         let totalOriginalSize = 0;
         let processedCount = 0;
 
-        // Crear array de promesas
-        const promises = selectedFiles.map(file => {
-            totalOriginalSize += file.size;
-            return processSingleImage(file, format, quality).then(blob => {
-                const newName = file.name.split('.')[0] + `-opt.${ext}`;
-                zip.file(newName, blob);
+        // Optimización: Procesar en lotes pequeños para no bloquear la UI
+        const BATCH_SIZE = 3;
 
-                // Actualizar Barra
-                processedCount++;
-                progressBar.style.width = `${(processedCount / selectedFiles.length) * 100}%`;
+        for (let i = 0; i < selectedFiles.length; i += BATCH_SIZE) {
+            const batch = selectedFiles.slice(i, i + BATCH_SIZE);
+
+            // Crear promesas para el lote actual
+            const batchPromises = batch.map(file => {
+                totalOriginalSize += file.size;
+                return processSingleImage(file, format, quality)
+                    .then(blob => {
+                        const newName = file.name.split('.')[0] + `-opt.${ext}`;
+                        zip.file(newName, blob);
+
+                        // Actualizar Barra
+                        processedCount++;
+                        progressBar.style.width = `${(processedCount / selectedFiles.length) * 100}%`;
+
+                        // Pequeña pausa para permitir que la UI se renderice
+                        return new Promise(resolve => setTimeout(() => resolve(), 10));
+                    })
+                    .catch(err => {
+                        console.error(`Error procesando ${file.name}`, err);
+                        // No interrumpimos todo el proceso por un error, pero lo logueamos
+                    });
             });
-        });
 
-        // Esperar a todos
-        await Promise.all(promises);
+            // Esperar a que termine este lote antes de comenzar el siguiente
+            await Promise.all(batchPromises);
+        }
 
         processBtn.innerHTML = "<span>📦</span> Empaquetando ZIP...";
 
