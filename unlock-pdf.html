@@ -18,8 +18,8 @@
         }
 
         .glass-effect {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.95);
+            /* Removed backdrop-filter for performance */
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
@@ -116,11 +116,11 @@
             <!-- Drop Zone -->
             <div id="dropZone"
                 class="flex flex-col items-center justify-center p-12 min-h-[300px] text-center cursor-pointer hover:bg-white/5 transition-all duration-300 group select-none relative rounded-3xl">
-                <input type="file" id="fileInput" class="hidden" accept=".pdf">
+                <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"
+                    accept=".pdf">
 
-                <!-- Button Visual -->
                 <div
-                    class="relative z-10 bg-gradient-to-br from-red-700 to-red-900 text-red-50 text-xl font-bold py-5 px-10 rounded-2xl shadow-lg shadow-red-900/20 transition-all duration-300 group-hover:scale-105 group-hover:from-red-600 group-hover:to-red-800 group-hover:shadow-red-900/40 active:scale-95 flex items-center gap-3">
+                    class="pointer-events-none relative z-10 bg-gradient-to-br from-red-700 to-red-900 text-red-50 text-xl font-bold py-5 px-10 rounded-2xl shadow-lg shadow-red-900/20 transition-all duration-300 group-hover:scale-105 group-hover:from-red-600 group-hover:to-red-800 group-hover:shadow-red-900/40 active:scale-95 flex items-center gap-3">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
@@ -145,21 +145,27 @@
                 <button id="removeFileBtn" class="text-slate-400 hover:text-red-400">✕</button>
             </div>
 
-            <!-- Unlock Section (Password Input) -->
+            <!-- Unlock Status Section (Replaces Password Input) -->
             <div id="unlockSection" class="hidden mt-6 animate-fade-in">
-                <div class="p-6 bg-slate-800/50 rounded-xl border border-red-500/30">
-                    <h3 class="text-white font-bold mb-2">Este archivo está protegido</h3>
-                    <p class="text-slate-400 text-sm mb-4">Ingresa la contraseña para desbloquearlo permanentemente.</p>
-
-                    <div class="flex gap-2">
-                        <input type="password" id="passwordInput" placeholder="Contraseña del PDF"
-                            class="flex-1 bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block p-3">
-                        <button id="unlockBtn"
-                            class="bg-red-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-600 transition-colors">
-                            Desbloquear
-                        </button>
+                <div class="p-6 bg-slate-800/50 rounded-xl border border-blue-500/30 text-center">
+                    <div id="unlockSpinner" class="hidden mb-4">
+                        <div
+                            class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto">
+                        </div>
                     </div>
-                    <p id="errorMsg" class="hidden text-red-400 text-xs mt-2 pl-1">⚠ Contraseña incorrecta</p>
+                    <div id="unlockStatusIcon" class="text-4xl mb-4">🔒</div>
+
+                    <h3 id="unlockTitle" class="text-white font-bold text-xl mb-2">Analizando Seguridad</h3>
+                    <p id="unlockMessage" class="text-slate-400 text-sm mb-6">
+                        El sistema está intentando eliminar la protección automáticamente...
+                    </p>
+
+                    <div id="cantUnlockMsg"
+                        class="hidden p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-300">
+                        <p class="font-bold">⚠️ No se pudo desbloquear automáticamente</p>
+                        <p class="mt-1 opacity-80">La encriptación de este archivo es demasiado fuerte (AES-128/256) y
+                            no se puede romper desde el navegador.</p>
+                    </div>
                 </div>
             </div>
 
@@ -202,7 +208,7 @@
         </div>
     </header>
 
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="unlock-pdf.js"></script>
 </body>
 

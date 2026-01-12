@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const deselectAllBtn = document.getElementById('deselectAllBtn');
     const selectedCountDisplay = document.getElementById('selectedCount');
     const splitBtn = document.getElementById('splitBtn');
+    const manualActions = document.getElementById('manualActions');
 
     // Controls: Size
     const totalSizeDisplay = document.getElementById('totalSizeDisplay');
@@ -157,6 +158,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file.size > 1024 * 1024) sizeText = `${(file.size / (1024 * 1024)).toFixed(2)} MB (${sizeKB} KB)`;
         if (totalSizeDisplay) totalSizeDisplay.textContent = sizeText;
 
+        // Update Layout to Full Screen
+        const pageTitle = document.getElementById('pageTitle');
+        const mainContainer = document.getElementById('mainContainer');
+
+        if (pageTitle) pageTitle.style.display = 'none'; // Instant hide to save space
+
+        // Expand Container
+        mainContainer.className = "w-full h-full max-w-[1920px] mx-auto glass-effect rounded-2xl shadow-2xl border border-slate-700/50 flex flex-col overflow-hidden relative transition-all duration-500";
+        // Remove padding that was used for the small box
+        mainContainer.classList.remove('p-2', 'md:p-6');
+
         dropZone.classList.add('hidden');
         loadingIndicator.classList.remove('hidden');
         editorInterface.classList.add('hidden');
@@ -201,43 +213,86 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                const index = parseInt(el.dataset.pageIndex);
+                if (el.dataset.rendered === "false") {
+                    renderPageThumbnail(index, el);
+                    el.dataset.rendered = "true";
+                }
+                observer.unobserve(el);
+            }
+        });
+    }, { root: pagesGridWrapper, rootMargin: "200px" });
+
     async function preparePageCache() {
         pageElementsCache = [];
         for (let i = 1; i <= numPages; i++) {
             const pageContainer = document.createElement('div');
             pageContainer.className = 'relative group cursor-pointer transition-all duration-200 p-2 rounded-xl border-2 border-transparent';
+
+            // Mark as not rendered
             pageContainer.dataset.pageIndex = i - 1;
+            pageContainer.dataset.rendered = "false";
 
             const canvasWrapper = document.createElement('div');
-            canvasWrapper.className = 'relative rounded-lg overflow-hidden shadow-sm bg-white pointer-events-none';
+            canvasWrapper.className = 'relative rounded-lg overflow-hidden shadow-sm bg-slate-800 pointer-events-none min-h-[150px] flex items-center justify-center';
 
-            const canvas = document.createElement('canvas');
-            canvas.className = 'w-full h-auto block';
+            // Placeholder visuals
+            canvasWrapper.innerHTML = `
+                <div class="absolute inset-0 flex items-center justify-center text-slate-700">
+                    <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+            `;
 
             const checkOverlay = document.createElement('div');
-            checkOverlay.className = 'absolute inset-0 bg-red-500/10 opacity-0 transition-opacity flex items-center justify-center manual-indicator';
+            checkOverlay.className = 'absolute inset-0 bg-red-500/10 opacity-0 transition-opacity flex items-center justify-center manual-indicator z-20';
             checkOverlay.innerHTML = '<span class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transform scale-90 transition-transform"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></span>';
 
             const badge = document.createElement('div');
-            badge.className = 'absolute bottom-2 right-2 bg-slate-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded-full backdrop-blur-sm';
+            badge.className = 'absolute bottom-2 right-2 bg-slate-900/80 text-white text-[10px] font-medium px-2 py-0.5 rounded-full backdrop-blur-none z-20';
             badge.textContent = `${i}`;
 
-            canvasWrapper.appendChild(canvas);
             canvasWrapper.appendChild(checkOverlay);
             canvasWrapper.appendChild(badge);
             pageContainer.appendChild(canvasWrapper);
 
+            // Click listener should work even if not rendered
             pageContainer.addEventListener('click', () => handlePageClick(i - 1));
 
-            const page = await pdfDoc.getPage(i);
+            // Start observing for lazy load
+            observer.observe(pageContainer);
+
+            pageElementsCache.push(pageContainer);
+        }
+    }
+
+    async function renderPageThumbnail(index, container) {
+        try {
+            const page = await pdfDoc.getPage(index + 1);
             const viewport = page.getViewport({ scale: 0.35 });
+
+            const canvas = document.createElement('canvas');
+            canvas.className = 'w-full h-auto block relative z-10 fadeIn';
             canvas.height = viewport.height;
             canvas.width = viewport.width;
 
             const ctx = canvas.getContext('2d');
-            page.render({ canvasContext: ctx, viewport: viewport });
+            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
-            pageElementsCache.push(pageContainer);
+            const wrapper = container.querySelector('div'); // canvasWrapper
+            // Remove placeholder icon
+            const placeholder = wrapper.querySelector('div.absolute');
+            if (placeholder) placeholder.remove();
+
+            wrapper.insertBefore(canvas, wrapper.firstChild); // Insert before overlay
+            wrapper.classList.remove('min-h-[150px]', 'flex', 'items-center', 'justify-center', 'bg-slate-800');
+            wrapper.classList.add('bg-white');
+
+        } catch (e) {
+            console.error("Error rendering page " + index, e);
         }
     }
 
@@ -361,35 +416,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabs = { manual: tabManual, size: tabSize, range: tabRange };
         const controls = { manual: controlsManual, size: controlsSize, range: controlsRange };
 
+        // Toggle Tabs State
         Object.keys(tabs).forEach(k => {
-            tabs[k].className = 'flex-1 py-1.5 px-3 text-sm font-semibold rounded-md text-slate-400 hover:text-white hover:bg-slate-600/50 transition-all';
+            if (k === mode) {
+                tabs[k].setAttribute('data-active', 'true');
+            } else {
+                tabs[k].removeAttribute('data-active');
+            }
             controls[k].classList.add('hidden');
         });
 
-        tabs[mode].className = 'flex-1 py-1.5 px-3 text-sm font-semibold rounded-md bg-slate-600 text-white shadow-sm transition-all';
-        controls[mode].classList.remove('hidden');
+        // Toggle Footer Actions
+        if (manualActions) manualActions.classList.add('hidden');
+        if (splitSizeBtn) splitSizeBtn.classList.add('hidden');
+        if (splitRangeBtn) splitRangeBtn.classList.add('hidden');
 
         if (mode === 'manual') {
+            if (manualActions) manualActions.classList.remove('hidden');
             renderGridStandard();
             updateManualControls();
         } else if (mode === 'range') {
+            if (splitRangeBtn) splitRangeBtn.classList.remove('hidden');
             switchRangeSubMode(rangeSubMode);
         } else if (mode === 'size') {
+            if (splitSizeBtn) splitSizeBtn.classList.remove('hidden');
             renderGridStandard();
             updateUI();
         }
+
+        controls[mode].classList.remove('hidden');
     }
 
     function switchRangeSubMode(subMode) {
         rangeSubMode = subMode;
         if (subMode === 'custom') {
-            subTabCustom.className = 'flex-1 py-2 text-xs font-bold rounded shadow-sm bg-slate-600 text-white border border-slate-500 transition-all';
-            subTabFixed.className = 'flex-1 py-2 text-xs font-bold rounded text-slate-400 hover:bg-slate-700/50 transition-all';
+            subTabCustom.className = 'flex-1 py-1.5 text-xs font-bold rounded shadow-sm bg-slate-600 text-white transition-all';
+            subTabFixed.className = 'flex-1 py-1.5 text-xs font-bold rounded text-slate-400 hover:text-white hover:bg-white/5 transition-all';
             rangeCustomControls.classList.remove('hidden');
             rangeFixedControls.classList.add('hidden');
         } else {
-            subTabFixed.className = 'flex-1 py-2 text-xs font-bold rounded shadow-sm bg-slate-600 text-white border border-slate-500 transition-all';
-            subTabCustom.className = 'flex-1 py-2 text-xs font-bold rounded text-slate-400 hover:bg-slate-700/50 transition-all';
+            subTabFixed.className = 'flex-1 py-1.5 text-xs font-bold rounded shadow-sm bg-slate-600 text-white transition-all';
+            subTabCustom.className = 'flex-1 py-1.5 text-xs font-bold rounded text-slate-400 hover:text-white hover:bg-white/5 transition-all';
             rangeFixedControls.classList.remove('hidden');
             rangeCustomControls.classList.add('hidden');
         }

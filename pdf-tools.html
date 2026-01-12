@@ -19,8 +19,8 @@
         }
 
         .glass-effect {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.95);
+            /* Removed backdrop-filter for performance */
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
@@ -212,6 +212,14 @@
                             class="absolute inset-0 bg-gradient-to-br from-red-500/0 to-orange-500/0 group-hover:from-red-500/10 group-hover:to-orange-500/10 transition-all duration-500">
                         </div>
                         <div class="relative z-10">
+                            <div class="mb-4">
+                                <svg class="w-12 h-12 text-red-400 group-hover:scale-110 transition-transform duration-300"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M4 14h6m0 0v6m0-6L4 20 M20 10h-6m0 0V4m0 6l6-6 M14 20v-6m0 0h6m-6 0l6 6 M10 4v6m0 0H4m6 0L4 4">
+                                    </path>
+                                </svg>
+                            </div>
                             <h3 class="text-lg font-bold text-white mb-2 group-hover:text-red-400 transition-colors">
                                 Comprimir</h3>
                             <p class="text-slate-400 text-sm leading-relaxed">Reduce el tamaño manteniendo la calidad.
